@@ -1,4 +1,5 @@
 import os
+os.makedirs('data', exist_ok=True)
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
