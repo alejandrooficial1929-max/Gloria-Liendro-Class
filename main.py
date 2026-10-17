@@ -1,3 +1,4 @@
+import psycopg2
 import os
 import sqlite3
 import json
@@ -112,59 +113,53 @@ def obtener_rango_elo(categoria, subnivel):
     return (1200, 1400) # Rango por defecto
 
 def buscar_ejercicios_db(elo_min, elo_max, tema_key, cantidad=4):
-    db_path = os.path.join('data', 'puzzles.db')
-    if not os.path.exists(db_path):
-        print("❌ Base de datos no encontrada. Ejecuta primero 'python setup_db.py'.")
-        exit()
-
     tema_tag = MAPEO_TEMAS.get(tema_key.lower(), tema_key)
-    conexion = sqlite3.connect(db_path)
+    
+    conexion = psycopg2.connect(os.getenv("DATABASE_URL"))
     cursor = conexion.cursor()
 
+    # Usamos CAST para convertir el texto a número durante la búsqueda
     query = '''
-        SELECT PuzzleId, FEN, Moves, Rating, Themes 
-        FROM puzzles 
-        WHERE Rating BETWEEN ? AND ? 
-        AND Themes LIKE ?
-        ORDER BY Popularity DESC
-        LIMIT ?
+        SELECT "PuzzleId", "FEN", "Moves", "Rating", "Themes"
+        FROM puzzles
+        WHERE CAST("Rating" AS INTEGER) BETWEEN %s AND %s
+        AND "Themes" LIKE %s
+        ORDER BY "Popularity" DESC
+        LIMIT %s
     '''
     parametros = [elo_min, elo_max, f"%{tema_tag}%", cantidad]
     cursor.execute(query, parametros)
     resultados = cursor.fetchall()
     conexion.close()
-    
+
     return resultados
 
 def buscar_ejercicios_apertura(elo_min, elo_max, opening_tag, fase_juego="todos", cantidad=6):
-    """Busca ejercicios filtrando específicamente por la apertura y fase del juego"""
-    db_path = os.path.join('data', 'puzzles.db')
-    conn = sqlite3.connect(db_path) 
-    cursor = conn.cursor()
-    
-    # Preparamos la búsqueda de la apertura usando el comodín LIKE de SQL
+    conexion = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conexion.cursor()
+
     tag_busqueda = f"%{opening_tag}%"
-    
-    query = """
-        SELECT PuzzleId, FEN, Moves, Rating, Themes 
-        FROM puzzles 
-        WHERE Rating BETWEEN ? AND ? 
-        AND OpeningTags LIKE ?
-    """
+
+    # Usamos CAST para convertir el texto a número durante la búsqueda
+    query = '''
+        SELECT "PuzzleId", "FEN", "Moves", "Rating", "Themes"
+        FROM puzzles
+        WHERE CAST("Rating" AS INTEGER) BETWEEN %s AND %s
+        AND "OpeningTags" LIKE %s
+    '''
     parametros = [elo_min, elo_max, tag_busqueda]
-    
-    # Si el usuario eligió una fase específica (medio juego, final), lo añadimos al filtro de Temas
+
     if fase_juego != "todos":
-        query += " AND Themes LIKE ?"
+        query += ' AND "Themes" LIKE %s'
         parametros.append(f"%{fase_juego}%")
-        
-    query += " ORDER BY RANDOM() LIMIT ?"
+
+    query += " ORDER BY RANDOM() LIMIT %s"
     parametros.append(cantidad)
-    
+
     cursor.execute(query, parametros)
     resultados = cursor.fetchall()
-    conn.close()
-    
+    conexion.close()
+
     return resultados
 
 def obtener_teoria_gemini(apertura_id, variante_id, categoria):

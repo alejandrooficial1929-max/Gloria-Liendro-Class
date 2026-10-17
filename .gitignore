@@ -5,3 +5,21 @@ data/
 .env
 __pycache__/
 *.pdf
+
+# Variables de entorno (¡Oculta tu API Key!)
+.env
+
+# Bases de datos locales
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Archivos PDF generados
+*.pdf
+
+# Archivos de caché de Python y entornos virtuales
+__pycache__/
+venv/
+env/
+.venv/
