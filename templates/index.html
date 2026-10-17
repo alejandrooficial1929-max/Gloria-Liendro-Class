@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkmate Lab — Studio Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at top, #1a2035 0%, #0a0d14 100%);
+            --card-bg: rgba(18, 24, 38, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-gold: #d4af37;
+            --accent-gold-hover: #f3ca40;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --input-bg: rgba(10, 14, 23, 0.6);
+            --input-border: rgba(255, 255, 255, 0.12);
+            --focus-glow: rgba(212, 175, 55, 0.25);
+        }
+
+        * { box-sizing: border-box; transition: all 0.25s ease-in-out; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0d14;
+            background-image: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container { width: 100%; max-width: 500px; position: relative; z-index: 1; }
+
+        .brand-header { text-align: center; margin-bottom: 28px; }
+
+        .brand-badge {
+            display: inline-block; font-family: 'Outfit', sans-serif; font-size: 11px;
+            font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--accent-gold); background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.25); padding: 5px 14px;
+            border-radius: 20px; margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 700; margin: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            background-clip: text; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; letter-spacing: -0.5px;
+        }
+
+        .subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 6px; }
+
+        .card {
+            background: var(--card-bg); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 36px 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Toggle Experto */
+        .toggle-container {
+            display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 15px;
+        }
+        .toggle-label { font-size: 13px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 24px;
+            border: 1px solid var(--input-border);
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background-color: var(--text-secondary); transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: rgba(212, 175, 55, 0.15); border-color: var(--accent-gold); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: var(--accent-gold); }
+        
+        /* Clase mágica para ocultar contenido avanzado */
+        .advanced-opt { display: none; }
+        body.modo-experto .advanced-opt { display: block; }
+
+        /* Tabs System */
+        .tabs {
+            display: flex; gap: 8px; background: rgba(0, 0, 0, 0.3);
+            padding: 6px; border-radius: 12px; margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            flex: 1; background: transparent; color: var(--text-secondary);
+            border: none; padding: 12px; border-radius: 8px; font-family: 'Outfit', sans-serif;
+            font-weight: 600; font-size: 14px; cursor: pointer;
+        }
+
+        .tab-btn.active { background: var(--accent-gold); color: #0a0d14; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2); }
+        .tab-btn:not(.active):hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 22px; }
+        
+        label {
+            display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+            text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
+            border-radius: 10px; padding: 13px 16px; font-size: 14px; color: var(--text-primary);
+            outline: none; font-family: inherit;
+        }
+        
+        input::placeholder { color: #475569; }
+        input:focus, select:focus { border-color: var(--accent-gold); box-shadow: 0 0 0 4px var(--focus-glow); background: rgba(15, 23, 42, 0.8); }
+        select option, optgroup { background-color: #0f172a; color: #f8fafc; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .search-group { display: flex; gap: 10px; }
+        .btn-filter {
+            background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
+            padding: 0 16px; color: var(--text-primary); cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .btn-filter:hover { border-color: var(--text-secondary); background: rgba(255, 255, 255, 0.1); }
+
+        .btn-submit {
+            width: 100%; background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%);
+            color: #0a0d14; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+            letter-spacing: 0.5px; padding: 16px; border: none; border-radius: 12px;
+            cursor: pointer; margin-top: 10px; box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-submit:hover { background: linear-gradient(135deg, #f3ca40 0%, #c49811 100%); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(212, 175, 55, 0.4); }
+
+        .footer-note { text-align: center; font-size: 12px; color: #475569; margin-top: 24px; }
+
+        /* Modal Settings */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 100;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        
+        .modal-box {
+            background: #0f172a; border: 1px solid var(--card-border); border-radius: 20px;
+            width: 90%; max-width: 400px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px); transition: transform 0.3s;
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0); }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-family: 'Outfit', sans-serif; font-size: 20px; margin: 0; color: #f8fafc; }
+        .close-btn { background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 0; }
+        .close-btn:hover { color: #f8fafc; }
+        
+        .btn-modal-apply {
+            width: 100%; background: #f8fafc; color: #0f172a; font-weight: 700; padding: 12px;
+            border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; font-family: 'Outfit', sans-serif;
+        }
+        .btn-modal-apply:hover { background: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="brand-header">
+        <span class="brand-badge">STUDIO SUITE</span>
+        <h1>Checkmate Lab</h1>
+        <p class="subtitle">Generador Personalizado de Material Didáctico</p>
+    </div>
+
+    <div class="card">
+        <!-- TOGGLE MODO EXPERTO -->
+        <div class="toggle-container">
+            <span class="toggle-label" id="toggle-texto">Modo Simplificado</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-experto" onchange="cambiarModo()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <!-- TABS NAV -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tactica')">Módulo Táctica</button>
+            <button class="tab-btn" onclick="switchTab('aperturas')">Módulo Aperturas</button>
+        </div>
+
+        <!-- ================= MÓDULO TÁCTICA ================= -->
+        <div id="tab-tactica" class="tab-content active">
+            <form action="/generar-pdf" method="post">
+                <div class="form-group">
+                    <label for="alumno_tactica">Nombre del Alumno</label>
+                    <input type="text" id="alumno_tactica" name="alumno" placeholder="Ej. Carlos Ruiz" required autocomplete="off">
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="categoria_tactica">Categoría</label>
+                        <select id="categoria_tactica" name="categoria">
+                            <option value="iniciante">Iniciante</option>
+                            <option value="novato">Novato</option>
+                            <option value="intermedio" selected>Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="subnivel_tactica">Subnivel</label>
+                        <select id="subnivel_tactica" name="subnivel">
+                            <option value="I">Nivel I</option>
+                            <option value="II">Nivel II</option>
+                            <option value="III">Nivel III</option>
+                            <option value="IV" selected>Nivel IV</option>
+                            <option value="V">Nivel V</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tema">Tema Táctico o Patrón</label>
+                    <select id="tema" name="tema">
+                        <optgroup label="Táctica Básica">
+                            <option value="celada" selected>Celada / Pieza Atrapada</option>
+                            <option value="clavada">Clavada</option>
+                            <option value="doble">Ataque Doble / Horquilla</option>
+                            <option value="descubierto">Ataque a la Descubierta</option>
+                            <option value="desviacion">Desviación</option>
+                        </optgroup>
+                        
+                        <optgroup label="Jaque Mates Básicos">
+                            <option value="mate_1">Mate en 1 Jugada</option>
+                            <option value="mate_2">Mate en 2 Jugadas</option>
+                            <option value="mate_pasillo">Mate del Pasillo</option>
+                            <option value="mate_anastasia">Mate de Anastasia</option>
+                        </optgroup>
+
+                        <optgroup label="Táctica Avanzada" class="advanced-opt">
+                            <option value="enfilada" class="advanced-opt">Enfilada</option>
+                            <option value="atraccion" class="advanced-opt">Atracción</option>
+                            <option value="interferencia" class="advanced-opt">Interferencia</option>
+                            <option value="despeje" class="advanced-opt">Despeje de Casilla / Línea</option>
+                            <option value="sacrificio" class="advanced-opt">Sacrificio Táctico</option>
+                            <option value="rayos_x" class="advanced-opt">Ataque de Rayos X</option>
+                            <option value="zugzwang" class="advanced-opt">Zugzwang</option>
+                            <option value="sobrecarga" class="advanced-opt">Sobrecarga de Pieza</option>
+                            <option value="eliminacion_defensor" class="advanced-opt">Eliminación del Defensor</option>
+                            <option value="pieza_indefensa" class="advanced-opt">Pieza Indefensa / Colgada</option>
+                            <option value="simplificacion" class="advanced-opt">Simplificación / Liquidación</option>
+                        </optgroup>
+    
+                        <optgroup label="Promociones y Reglas" class="advanced-opt">
+                            <option value="promocion" class="advanced-opt">Promoción / Coronación</option>
+                            <option value="subpromocion" class="advanced-opt">Subpromoción (Caballo/Torre/Alfil)</option>
+                            <option value="al_paso" class="advanced-opt">Captura al Paso</option>
+                        </optgroup>
+                        
+                        <optgroup label="Mates Avanzados" class="advanced-opt">
+                            <option value="mate_3" class="advanced-opt">Mate en 3 Jugadas</option>
+                            <option value="mate_4" class="advanced-opt">Mate en 4 Jugadas</option>
+                            <option value="mate_5" class="advanced-opt">Mate en 5+ Jugadas</option>
+                            <option value="mate_arabe" class="advanced-opt">Mate Árabe</option>
+                            <option value="mate_boden" class="advanced-opt">Mate de Boden / Fischer</option>
+                            <option value="mate_coz" class="advanced-opt">Mate de la Coz (Smothered)</option>
+                            <option value="mate_escalera" class="advanced-opt">Mate de la Escalera</option>
+                        </optgroup>
+    
+                        <optgroup label="Finales Tácticos" class="advanced-opt">
+                            <option value="final_peones" class="advanced-opt">Final de Peones</option>
+                            <option value="final_torres" class="advanced-opt">Final de Torres</option>
+                            <option value="final_caballos" class="advanced-opt">Final de Caballos</option>
+                            <option value="final_alfiles" class="advanced-opt">Final de Alfiles</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidad">Cantidad de Ejercicios</label>
+                    <select id="cantidad" name="cantidad">
+                        <option value="4">4 Ejercicios</option>
+                        <option value="6">6 Ejercicios</option>
+                        <option value="10" selected>10 Ejercicios (Hoja Completa)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Generar Ficha Táctica</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
+            </form>
+        </div>
+
+<!-- ================= MÓDULO APERTURAS ================= -->
+        <div id="tab-aperturas" class="tab-content">
+            <form action="/generar-modulo" method="post">
+                <div class="form-group">
+                    <label for="alumno_apertura">Nombre del Alumno</label>
+                    <input type="text" id="alumno_apertura" name="alumno" placeholder="Ej. Carlos Ruiz" required autocomplete="off">
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="categoria_apertura">Categoría</label>
+                        <select id="categoria_apertura" name="categoria">
+                            <option value="iniciante">Iniciante</option>
+                            <option value="novato">Novato</option>
+                            <option value="intermedio" selected>Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fase_apertura">Fase a Entrenar</label>
+                        <select id="fase_apertura" name="fase_juego">
+                            <option value="todos" selected>Todas las fases</option>
+                            <option value="opening">Solo en la Apertura (Jugadas 1-15)</option>
+                            <option value="middlegame">Medio Juego (Planes y Rupturas)</option>
+                            <option value="endgame">Finales típicos de esta variante</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="familia_apertura">Apertura / Defensa Principal</label>
+                    <select id="familia_apertura" name="familia_apertura" onchange="actualizarVariantes()">
+                        <option value="">-- Selecciona una Apertura --</option>
+                        
+                        <optgroup label="Aperturas Abiertas (1.e4 e5)">
+                            <option value="Italian_Game">Apertura Italiana</option>
+                            <option value="Ruy_Lopez">Apertura Española (Ruy López)</option>
+                            <option value="Scotch_Game">Apertura Escocesa</option>
+                            <option value="Petrovs_Defense">Defensa Petrov (Rusa)</option>
+                            <option value="Vienna_Game">Apertura Vienesa</option>
+                            <option value="Kings_Gambit">Gambito de Rey</option>
+                            <option value="Four_Knights_Game">Juego de los 4 Caballos</option>
+                            <option value="Philidor_Defense">Defensa Philidor</option>
+                            <option value="Bishops_Opening">Apertura del Alfil</option>
+                            <option value="Center_Game">Juego del Centro / Gambito Danés</option>
+                            <option value="Ponziani_Opening">Apertura Ponziani</option>
+                        </optgroup>
+
+                        <optgroup label="Defensas Semiabiertas (1.e4 ...)">
+                            <option value="Sicilian_Defense">Defensa Siciliana</option>
+                            <option value="French_Defense">Defensa Francesa</option>
+                            <option value="Caro-Kann_Defense">Defensa Caro-Kann</option>
+                            <option value="Pirc_Defense">Defensa Pirc</option>
+                            <option value="Modern_Defense">Defensa Moderna</option>
+                            <option value="Alekhine_Defense">Defensa Alekhine</option>
+                            <option value="Scandinavian_Defense">Defensa Escandinava</option>
+                            <option value="Nimzowitsch_Defense">Defensa Nimzowitsch</option>
+                        </optgroup>
+
+                        <optgroup label="Aperturas Cerradas (1.d4 d5)">
+                            <option value="Queens_Gambit_Declined">Gambito de Dama Rehusado (QGD)</option>
+                            <option value="Queens_Gambit_Accepted">Gambito de Dama Aceptado (QGA)</option>
+                            <option value="Slav_Defense">Defensa Eslava</option>
+                            <option value="Semi-Slav_Defense">Defensa Semieslava</option>
+                            <option value="Catalan_Opening">Apertura Catalana</option>
+                            <option value="Blackmar-Diemer_Gambit">Gambito Blackmar-Diemer</option>
+                        </optgroup>
+
+                        <optgroup label="Defensas Indias y Semi-cerradas (1.d4 Cf6)">
+                            <option value="Kings_Indian_Defense">Defensa India de Rey</option>
+                            <option value="Nimzo-Indian_Defense">Defensa Nimzo-India</option>
+                            <option value="Queens_Indian_Defense">Defensa India de Dama</option>
+                            <option value="Grunfeld_Defense">Defensa Grünfeld</option>
+                            <option value="Bogo-Indian_Defense">Defensa Bogo-India</option>
+                            <option value="Benoni_Defense">Defensa Benoni</option>
+                            <option value="Benko_Gambit">Gambito Benko (Volga)</option>
+                            <option value="Dutch_Defense">Defensa Holandesa</option>
+                        </optgroup>
+
+                        <optgroup label="Sistemas y Aperturas de Flanco">
+                            <option value="English_Opening">Apertura Inglesa (1.c4)</option>
+                            <option value="Reti_Opening">Apertura Réti (1.Cf3)</option>
+                            <option value="London_System">Sistema Londres</option>
+                            <option value="Colle_System">Sistema Colle</option>
+                            <option value="Kings_Indian_Attack">Ataque Indio de Rey</option>
+                            <option value="Trompowsky_Attack">Ataque Trompowsky</option>
+                            <option value="Bird_Opening">Apertura Bird (1.f4)</option>
+                            <option value="Nimzo-Larsen_Attack">Ataque Nimzo-Larsen (1.b3)</option>
+                            <option value="Polish_Opening">Apertura Sokolsky / Polaca (1.b4)</option>
+                            <option value="Grob_Opening">Ataque Grob (1.g4)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="variante_apertura">Variante Específica</label>
+                    <select id="variante_apertura" name="variante_apertura" disabled>
+                        <option value="general">Primero selecciona una apertura principal</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span>Generar Módulo Didáctico</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </button>
+            </form>
+        </div>
+<!-- ================= MODAL FILTROS AVANZADOS ================= -->
+<div id="modal-filtros" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Filtros de Apertura</h2>
+            <button class="close-btn" onclick="toggleModal('modal-filtros')">&times;</button>
+        </div>
+        
+        <div class="form-group">
+            <label>Bando (Color)</label>
+            <select id="modal_bando">
+                <option value="todos">Todos</option>
+                <option value="blancas">Aperturas con Blancas</option>
+                <option value="negras">Defensas con Negras</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Estilo / Tipo</label>
+            <select id="modal_estilo">
+                <option value="todos">Cualquiera</option>
+                <option value="abierta">Abiertas (1.e4 e5)</option>
+                <option value="cerrada">Cerradas (1.d4 d5)</option>
+                <option value="gambito">Gambitos</option>
+                <option value="sistema">Sistemas (Londres, Colle...)</option>
+            </select>
+        </div>
+
+        <button class="btn-modal-apply" onclick="aplicarFiltros()">Aplicar y Cerrar</button>
+    </div>
+</div>
+
+<script>
+    // Lógica del Interruptor Modo Experto
+    function cambiarModo() {
+        const estaActivado = document.getElementById("toggle-experto").checked;
+        const textoLabel = document.getElementById("toggle-texto");
+
+        if (estaActivado) {
+            document.body.classList.add("modo-experto");
+            textoLabel.textContent = "Desbloqueado (Modo Experto)";
+            textoLabel.style.color = "var(--accent-gold)";
+        } else {
+            document.body.classList.remove("modo-experto");
+            textoLabel.textContent = "Modo Simplificado";
+            textoLabel.style.color = "var(--text-secondary)";
+            
+            // Restablecer valores seguros si el usuario apaga el modo experto
+            document.getElementById("tema").value = "celada";
+            document.getElementById("familia_apertura").value = "";
+            actualizarVariantes();
+        }
+    }
+    // Lógica para cambiar entre pestañas
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.currentTarget.classList.add('active');
+        document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    // Lógica para abrir/cerrar Modal
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.toggle('active');
+    }
+
+    // Lógica para aplicar los filtros del modal a los inputs ocultos del formulario
+    function aplicarFiltros() {
+        document.getElementById('filtro_bando').value = document.getElementById('modal_bando').value;
+        document.getElementById('filtro_estilo').value = document.getElementById('modal_estilo').value;
+        toggleModal('modal-filtros');
+    }
+
+    // Diccionario Enciclopédico de Variantes Teóricas (Formato Lichess)
+    const diccionarioVariantes = {
+        /* ----- ABIERTAS ----- */
+        "Italian_Game": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Giuoco_Piano", texto: "Giuoco Piano" },
+            { id: "Giuoco_Pianissimo", texto: "Giuoco Pianissimo" },
+            { id: "Two_Knights_Defense", texto: "Defensa de los Dos Caballos" },
+            { id: "Fried_Liver_Attack", texto: "Ataque Fegatello (Fried Liver)" },
+            { id: "Evans_Gambit", texto: "Gambito Evans" },
+            { id: "Hungarian_Defense", texto: "Defensa Húngara" }
+        ],
+        "Ruy_Lopez": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Morphy_Defense", texto: "Defensa Morphy (3...a6)" },
+            { id: "Berlin_Defense", texto: "Defensa Berlinesa" },
+            { id: "Marshall_Attack", texto: "Ataque Marshall" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Closed", texto: "Española Cerrada (Chigorin, Breyer, Zaitsev)" },
+            { id: "Open", texto: "Española Abierta" },
+            { id: "Schliemann_Defense", texto: "Gambito Schliemann / Jaenisch" },
+            { id: "Steinitz_Defense", texto: "Defensa Steinitz" }
+        ],
+        "Scotch_Game": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Classical_Variation", texto: "Variante Clásica" },
+            { id: "Steinitz_Variation", texto: "Variante Steinitz" },
+            { id: "Mieses_Variation", texto: "Variante Mieses" },
+            { id: "Goring_Gambit", texto: "Gambito Göring" }
+        ],
+        "Petrovs_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Classical_Attack", texto: "Ataque Clásico" },
+            { id: "Steinitz_Attack", texto: "Ataque Steinitz" },
+            { id: "Three_Knights_Game", texto: "Juego de los 3 Caballos" }
+        ],
+        "Vienna_Game": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Vienna_Gambit", texto: "Gambito Vienés" },
+            { id: "Falkbeer_Variation", texto: "Variante Falkbeer" },
+            { id: "Max_Lange_Defense", texto: "Defensa Max Lange" }
+        ],
+        "Kings_Gambit": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Accepted", texto: "Gambito de Rey Aceptado" },
+            { id: "Declined", texto: "Gambito de Rey Rehusado" },
+            { id: "Falkbeer_Countergambit", texto: "Contragambito Falkbeer" },
+            { id: "Muzio_Gambit", texto: "Gambito Muzio" }
+        ],
+        
+        /* ----- SEMIABIERTAS ----- */
+        "Sicilian_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Najdorf_Variation", texto: "Variante Najdorf" },
+            { id: "Dragon_Variation", texto: "Variante Dragón" },
+            { id: "Accelerated_Dragon", texto: "Dragón Acelerado" },
+            { id: "Alapin_Variation", texto: "Variante Alapin (c3)" },
+            { id: "Closed", texto: "Siciliana Cerrada" },
+            { id: "Pelikan_Variation", texto: "Variante Sveshnikov / Pelikan" },
+            { id: "Taimanov_Variation", texto: "Variante Taimanov" },
+            { id: "Kan_Variation", texto: "Variante Kan (Paulsen)" },
+            { id: "Scheveningen_Variation", texto: "Variante Scheveningen" },
+            { id: "Grand_Prix_Attack", texto: "Ataque Grand Prix" },
+            { id: "Smith-Morra_Gambit", texto: "Gambito Smith-Morra" }
+        ],
+        "French_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Advance_Variation", texto: "Variante del Avance" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Tarrasch_Variation", texto: "Variante Tarrasch" },
+            { id: "Winawer_Variation", texto: "Variante Winawer" },
+            { id: "Rubinstein_Variation", texto: "Variante Rubinstein" },
+            { id: "MacAcutcheon_Variation", texto: "Variante MacAcutcheon" }
+        ],
+        "Caro-Kann_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Advance_Variation", texto: "Variante del Avance" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Classical_Variation", texto: "Variante Clásica (Capablanca)" },
+            { id: "Panov_Attack", texto: "Ataque Panov-Botvinnik" },
+            { id: "Fantasy_Variation", texto: "Variante Fantasía" },
+            { id: "Tartakower_Variation", texto: "Variante Tartakower" }
+        ],
+        "Pirc_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Austrian_Attack", texto: "Ataque Austríaco" },
+            { id: "Classical_Variation", texto: "Variante Clásica" },
+            { id: "Byrne_Variation", texto: "Variante Byrne" }
+        ],
+        "Alekhine_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Four_Pawns_Attack", texto: "Ataque de los 4 Peones" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Modern_Variation", texto: "Variante Moderna" }
+        ],
+        "Scandinavian_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Mieses-Kotroc_Variation", texto: "Línea Principal (3...Da5)" },
+            { id: "Icelandic-Palme_Gambit", texto: "Gambito Islandés" },
+            { id: "Portuguese_Variation", texto: "Variante Portuguesa" }
+        ],
+
+        /* ----- CERRADAS (1.d4) ----- */
+        "Queens_Gambit_Declined": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Tartakower_Defense", texto: "Defensa Tartakower" },
+            { id: "Lasker_Defense", texto: "Defensa Lasker" },
+            { id: "Cambridge_Springs_Defense", texto: "Defensa Cambridge Springs" },
+            { id: "Ragozin_Defense", texto: "Defensa Ragozin" },
+            { id: "Tarrasch_Defense", texto: "Defensa Tarrasch" }
+        ],
+        "Queens_Gambit_Accepted": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Classical_Defense", texto: "Defensa Clásica" },
+            { id: "Central_Variation", texto: "Variante Central" }
+        ],
+        "Slav_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Chebanenko_Variation", texto: "Variante Chebanenko (a6)" },
+            { id: "Alapin_Variation", texto: "Variante Alapin" }
+        ],
+        "Semi-Slav_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Meran_Variation", texto: "Variante Merano" },
+            { id: "Botvinnik_Variation", texto: "Variante Botvinnik" },
+            { id: "Anti-Moscow_Gambit", texto: "Gambito Anti-Moscú" }
+        ],
+
+        /* ----- DEFENSAS INDIAS ----- */
+        "Kings_Indian_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Orthodox_Variation", texto: "Variante Ortodoxa" },
+            { id: "Samisch_Variation", texto: "Variante Sämisch" },
+            { id: "Fianchetto_Variation", texto: "Variante Fianchetto" },
+            { id: "Four_Pawns_Attack", texto: "Ataque de los 4 Peones" },
+            { id: "Mar_del_Plata_Variation", texto: "Variante Mar del Plata" }
+        ],
+        "Nimzo-Indian_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Classical_Variation", texto: "Variante Clásica (Noa)" },
+            { id: "Rubinstein_System", texto: "Sistema Rubinstein" },
+            { id: "Samisch_Variation", texto: "Variante Sämisch" },
+            { id: "Leningrad_Variation", texto: "Variante Leningrado" }
+        ],
+        "Queens_Indian_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Fianchetto_Variation", texto: "Variante Fianchetto" },
+            { id: "Kasparov_Variation", texto: "Variante Kasparov" },
+            { id: "Petrosian_Variation", texto: "Variante Petrosian" }
+        ],
+        "Grunfeld_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Exchange_Variation", texto: "Variante del Cambio" },
+            { id: "Russian_Variation", texto: "Variante Rusa" },
+            { id: "Brinckmann_Attack", texto: "Ataque Brinckmann" }
+        ],
+        "Dutch_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Leningrad_Variation", texto: "Variante Leningrado" },
+            { id: "Stonewall_Variation", texto: "Muro de Piedra (Stonewall)" },
+            { id: "Classical_Variation", texto: "Variante Clásica (Ilyin-Zhenevsky)" }
+        ],
+        "Benoni_Defense": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Modern_Variation", texto: "Benoni Moderna" },
+            { id: "Old_Benoni", texto: "Benoni Antigua" },
+            { id: "Czech_Benoni_Defense", texto: "Benoni Checa" }
+        ],
+
+        /* ----- APERTURAS DE FLANCO ----- */
+        "English_Opening": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Anglo-Indian_Defense", texto: "Defensa Anglo-India" },
+            { id: "Symmetrical_Variation", texto: "Variante Simétrica" },
+            { id: "Reversed_Sicilian", texto: "Siciliana Invertida" },
+            { id: "Four_Knights_System", texto: "Sistema de los 4 Caballos" }
+        ],
+        "Reti_Opening": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Reti_Accepted", texto: "Réti Aceptado" },
+            { id: "Advance_Variation", texto: "Variante del Avance" }
+        ],
+        "Bird_Opening": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Dutch_Variation", texto: "Variante Holandesa" },
+            { id: "Froms_Gambit", texto: "Gambito From" }
+        ],
+        "London_System": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Mason_Attack", texto: "Ataque Mason" },
+            { id: "Jobava_London", texto: "Sistema Jobava Londres" }
+        ],
+        "Colle_System": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Koltanowski_Variation", texto: "Variante Koltanowski" },
+            { id: "Zukertort_Variation", texto: "Variante Zukertort" }
+        ],
+        "Kings_Indian_Attack": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "French_Variation", texto: "Frente a la Francesa" },
+            { id: "Sicilian_Variation", texto: "Frente a la Siciliana" }
+        ],
+        "Trompowsky_Attack": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Classical_Defense", texto: "Defensa Clásica (2...Ne4)" },
+            { id: "Poisoned_Pawn", texto: "Peón Envenenado" }
+        ],
+        "Nimzo-Larsen_Attack": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Classical_Variation", texto: "Variante Clásica" }
+        ],
+        "Blackmar-Diemer_Gambit": [
+            { id: "general", texto: "Todas las variantes (General)" },
+            { id: "Teichmann_Defense", texto: "Defensa Teichmann" }
+        ],
+        "Polish_Opening": [
+            { id: "general", texto: "Todas las variantes (General)" }
+        ],
+        "Grob_Opening": [
+            { id: "general", texto: "Todas las variantes (General)" }
+        ]
+    };
+
+    function actualizarVariantes() {
+        const familiaSelect = document.getElementById("familia_apertura");
+        const varianteSelect = document.getElementById("variante_apertura");
+        const aperturaSeleccionada = familiaSelect.value;
+
+        // Limpiar opciones anteriores
+        varianteSelect.innerHTML = "";
+
+        if (aperturaSeleccionada && diccionarioVariantes[aperturaSeleccionada]) {
+            varianteSelect.disabled = false;
+            diccionarioVariantes[aperturaSeleccionada].forEach(variante => {
+                let opcion = document.createElement("option");
+                // Si es "general", mandamos solo la familia. Si no, mandamos Familia_Variante
+                opcion.value = variante.id === "general" ? aperturaSeleccionada : aperturaSeleccionada + "_" + variante.id;
+                opcion.textContent = variante.texto;
+                varianteSelect.appendChild(opcion);
+            });
+        } else {
+            varianteSelect.disabled = true;
+            varianteSelect.innerHTML = '<option value="general">Primero selecciona una apertura principal</option>';
+        }
+    }
+</script>
+
+</body>
+</html>

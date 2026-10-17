@@ -1,0 +1,7 @@
+data/
+*.db
+*.csv
+*.zst
+.env
+__pycache__/
+*.pdf
