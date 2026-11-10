@@ -377,7 +377,7 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
     
     title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], fontSize=15, leading=17, textColor=colors.HexColor('#1a365d'), spaceAfter=2)
     subtitle_style = ParagraphStyle('SubTitleStyle', parent=styles['Normal'], fontSize=9, leading=11, textColor=colors.HexColor('#4a5568'), spaceAfter=4)
-    label_style = ParagraphStyle('LabelStyle', parent=styles['Normal'], fontSize=10, leading=22, textColor=colors.HexColor('#2d3748'))
+    label_style = ParagraphStyle('LabelStyle', parent=styles['Normal'], fontSize=10, leading=26, textColor=colors.HexColor('#2d3748'))
 
     story = []
 
@@ -400,13 +400,15 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
                 
                 mini_tabla = Table(
                     [[ej['drawing'], Paragraph(txt_info, label_style)]],
-                    colWidths=[187, 100] # El 187 ajusta la cuadrícula al nuevo tablero gigante
+                    colWidths=[185, 102]
                 )
                 mini_tabla.setStyle(TableStyle([
-                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-                    ('LEFTPADDING', (0,0), (-1,-1), 1),
-                    ('RIGHTPADDING', (0,0), (-1,-1), 1),
+                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                    ('LEFTPADDING', (0,0), (0,0), 0),
+                    ('LEFTPADDING', (1,0), (1,0), 8), # Espacio horizontal elegante
+                    ('RIGHTPADDING', (0,0), (-1,-1), 0),
                     ('TOPPADDING', (0,0), (-1,-1), 0),
+                    ('TOPPADDING', (1,0), (1,0), 5),  # Alinea el texto exacto con el borde superior del diagrama
                     ('BOTTOMPADDING', (0,0), (-1,-1), 0),
                 ]))
                 fila_par.append(mini_tabla)
@@ -440,13 +442,15 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
                 
                 mini_tabla = Table(
                     [[ej['drawing'], Paragraph(txt_sol, label_style)]],
-                    colWidths=[187, 100]
+                    colWidths=[185, 102]
                 )
                 mini_tabla.setStyle(TableStyle([
-                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-                    ('LEFTPADDING', (0,0), (-1,-1), 1),
-                    ('RIGHTPADDING', (0,0), (-1,-1), 1),
+                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                    ('LEFTPADDING', (0,0), (0,0), 0),
+                    ('LEFTPADDING', (1,0), (1,0), 8),
+                    ('RIGHTPADDING', (0,0), (-1,-1), 0),
                     ('TOPPADDING', (0,0), (-1,-1), 0),
+                    ('TOPPADDING', (1,0), (1,0), 5),
                     ('BOTTOMPADDING', (0,0), (-1,-1), 0),
                 ]))
                 fila_par.append(mini_tabla)
