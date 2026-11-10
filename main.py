@@ -331,7 +331,7 @@ def procesar_ejercicio(puzzle_raw, nivel_texto, tema_texto):
     turno_jugador = "Blancas" if board.turn == chess.WHITE else "Negras"
     
     # Generar la imagen vectorial (SVG) del tablero con orientación adecuada
-    svg_data = chess.svg.board(board=board, orientation=board.turn, size=170)
+    svg_data = chess.svg.board(board=board, orientation=board.turn, size=150)
     drawing = svg2rlg(io.StringIO(svg_data))
 
     # Consultar a Gemini para la pista y la explicación pedagógica
@@ -377,7 +377,7 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
     
     title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], fontSize=15, leading=17, textColor=colors.HexColor('#1a365d'), spaceAfter=2)
     subtitle_style = ParagraphStyle('SubTitleStyle', parent=styles['Normal'], fontSize=9, leading=11, textColor=colors.HexColor('#4a5568'), spaceAfter=4)
-    label_style = ParagraphStyle('LabelStyle', parent=styles['Normal'], fontSize=10, leading=25, textColor=colors.HexColor('#2d3748'))
+    label_style = ParagraphStyle('LabelStyle', parent=styles['Normal'], fontSize=8.5, leading=12, textColor=colors.HexColor('#2d3748'))
 
     story = []
 
@@ -392,23 +392,21 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
             if i + j < len(ejercicios):
                 ej = ejercicios[i + j]
                 txt_info = f"<b>#{i+j+1}</b> ({ej['turno']})<br/><br/>" \
-                           f"1. ____________<br/>" \
-                           f"2. ____________<br/>" \
-                           f"3. ____________<br/>" \
-                           f"4. ____________<br/>" \
-                           f"5. ____________"
+                           f"1. ___________________<br/>" \
+                           f"2. ___________________<br/>" \
+                           f"3. ___________________<br/>" \
+                           f"4. ___________________<br/>" \
+                           f"5. ___________________"
                 
                 mini_tabla = Table(
                     [[ej['drawing'], Paragraph(txt_info, label_style)]],
-                    colWidths=[175, 112]
+                    colWidths=[142, 145] # El 142 jala el texto hacia la izquierda
                 )
                 mini_tabla.setStyle(TableStyle([
-                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                    ('LEFTPADDING', (0,0), (0,0), 0),
-                    ('LEFTPADDING', (1,0), (1,0), 10),
-                    ('RIGHTPADDING', (0,0), (-1,-1), 0),
+                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                    ('LEFTPADDING', (0,0), (-1,-1), 1),
+                    ('RIGHTPADDING', (0,0), (-1,-1), 1),
                     ('TOPPADDING', (0,0), (-1,-1), 0),
-                    ('TOPPADDING', (1,0), (1,0), 13), # Este "13" alinea el texto perfecto con la tapa del tablero
                     ('BOTTOMPADDING', (0,0), (-1,-1), 0),
                 ]))
                 fila_par.append(mini_tabla)
@@ -418,9 +416,9 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
 
     t1 = Table(tabla_filas_p1, colWidths=[287, 287])
     t1.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TOPPADDING', (0,0), (-1,-1), 4),     
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),  
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 6),     # Más espacio vertical
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),  # Más espacio vertical
         ('LEFTPADDING', (0,0), (-1,-1), 0),
         ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ]))
@@ -442,15 +440,13 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
                 
                 mini_tabla = Table(
                     [[ej['drawing'], Paragraph(txt_sol, label_style)]],
-                    colWidths=[175, 112]
+                    colWidths=[142, 145]
                 )
                 mini_tabla.setStyle(TableStyle([
-                    ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                    ('LEFTPADDING', (0,0), (0,0), 0),
-                    ('LEFTPADDING', (1,0), (1,0), 10),
-                    ('RIGHTPADDING', (0,0), (-1,-1), 0),
+                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                    ('LEFTPADDING', (0,0), (-1,-1), 1),
+                    ('RIGHTPADDING', (0,0), (-1,-1), 1),
                     ('TOPPADDING', (0,0), (-1,-1), 0),
-                    ('TOPPADDING', (1,0), (1,0), 13),
                     ('BOTTOMPADDING', (0,0), (-1,-1), 0),
                 ]))
                 fila_par.append(mini_tabla)
@@ -460,9 +456,9 @@ def generar_pdf_hojas(ejercicios, alumno, categoria, subnivel, tema, archivo_sal
 
     t2 = Table(tabla_filas_p2, colWidths=[287, 287])
     t2.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
         ('LEFTPADDING', (0,0), (-1,-1), 0),
         ('RIGHTPADDING', (0,0), (-1,-1), 0),
     ]))
